@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:nanni_chat/src/common/colors.dart';
 import 'package:nanni_chat/src/global.dart';
+import 'package:nanni_chat/src/models/message.dart';
 import 'package:nanni_chat/src/pages/message/message_controller.dart';
 import 'package:nanni_chat/src/pages/message/message_page.dart';
 import 'package:nanni_chat/src/widgets/flex_tool_bar.dart';
@@ -66,7 +67,10 @@ class ChatPage extends GetView<ChatController> {
             child: SingleChildScrollView(
           child: Obx(() => Column(
                 children: [
-                  for (var i = 0; i < controller.chats.value; i++) ChatItem(),
+                  for (var i = 0; i < controller.messages.values.length; i++)
+                    ChatItem(
+                      lastMessage: controller.messages.values.toList()[i].last,
+                    ),
                   for (var userOnlineIndex = 0;
                       userOnlineIndex < controller.userOnlines.length;
                       userOnlineIndex++)
@@ -88,7 +92,8 @@ class ChatPage extends GetView<ChatController> {
 }
 
 class ChatItem extends StatelessWidget {
-  const ChatItem({super.key});
+  const ChatItem({super.key, required this.lastMessage});
+  final Message lastMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +131,7 @@ class ChatItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'hoainam',
+                            "${lastMessage.from}",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           Text(
@@ -136,7 +141,7 @@ class ChatItem extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        "Last messages in here...",
+                        "${lastMessage.messageBody}",
                         style: Theme.of(context).textTheme.bodySmall,
                       )
                     ],

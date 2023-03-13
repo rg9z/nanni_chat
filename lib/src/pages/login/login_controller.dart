@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nanni_chat/src/data/hive_storage.dart';
+import 'package:nanni_chat/src/global.dart';
 import 'package:nanni_chat/src/models/user.dart';
 import 'package:nanni_chat/src/pages/home/home_page.dart';
 import 'package:nanni_chat/src/pages/profile/profile_page.dart';
@@ -33,6 +34,7 @@ class LoginController extends GetxController {
         // go to create profile
         Get.to(ProfilePage(), arguments: {"userId": _sign?.id});
       } else {
+        Global.userInfo = user;
         //save user
         HiveStorage.saveUserLogin(user);
         // go to home

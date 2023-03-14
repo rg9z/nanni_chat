@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:nanni_chat/src/data/hive_storage.dart';
+import 'package:nanni_chat/src/models/chat.dart';
 import 'package:nanni_chat/src/models/user.dart';
 import 'package:nanni_chat/src/pages/chat/chat_controller.dart';
 
@@ -10,21 +13,44 @@ class MessageController extends GetxController {
   var socket = Get.find<ChatController>().socketService;
   TextEditingController contentController = TextEditingController();
   var messages = Get.find<ChatController>().messages;
+  var readyChatListener = Get.find<ChatController>().readyChatListener;
+  // var messages = [].obs;
   var messageUser = Rxn<User>();
   ScrollController scrollController = ScrollController();
+  var currentUserMessagesBox = Rxn();
+  var currentMessagesLength = 20.obs;
   var ls;
   @override
   void onInit() {
-    print("hiii");
+    
+    initMessage();
+    super.onInit();
+  }
+
+  @override
+  void onReady() {}
+
+  @override
+  void onClose() {
+    ls?.cancel();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    ls?.cancel();
+  }
+
+  void initMessage() async{
     try {
       messageUser.value = Get.arguments['user']!;
-      print("${Get.arguments}");
-
+      await openMessagesBox();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollController.jumpTo(scrollController.position.maxScrollExtent);
       });
 
-      ls = messages.listen((p0) {
+      ls = readyChatListener.listen((p0) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (scrollController != null) {
             scrollController.animateTo(
@@ -37,25 +63,14 @@ class MessageController extends GetxController {
     } catch (e) {
       print(e);
     }
-
-    super.onInit();
   }
-
-  @override
-  void onReady() {}
-
-  @override
-  void onClose() {
-    ls.cancel();
+  Future<void>  openMessagesBox() async{
+    // currentUserMessagesBox = await Hive.openBox<Message>(messageUser.value!.userId!);
+    // messages.value = currentUserMessagesBox.values.toList();
+    // print(messages);
+    // print(currentUserMessagesBox);
+    currentUserMessagesBox.value = messages[messageUser.value!.userId];
   }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    ls.cancel();
-  }
-
   void onSendMessage() {
     MessageType type = MessageType.text;
     Message message = Message(
@@ -75,7 +90,13 @@ class MessageController extends GetxController {
     // chatKeysList.value.add(chatUserInfo.userId.toString());
     // await messagesBox.put(chatUserInfo.userId.toString(),
     //     [...usersMap[chatUserInfo.userId]['message'], message]);
+
     Get.find<ChatController>().addNewMessage(message);
+    if(currentUserMessagesBox.value == null){
+     currentUserMessagesBox.value = messages[messageUser.value!.userId];
+     currentUserMessagesBox.refresh();
+    }
+    // send to socket.
     socket.sendMessageHandler(message.toJson());
   }
 }

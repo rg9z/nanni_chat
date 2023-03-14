@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:nanni_chat/src/common/colors.dart';
 import 'package:nanni_chat/src/global.dart';
+import 'package:nanni_chat/src/models/chat.dart';
 import 'package:nanni_chat/src/models/message.dart';
 import 'package:nanni_chat/src/pages/message/message_controller.dart';
 import 'package:nanni_chat/src/pages/message/message_page.dart';
@@ -67,15 +68,17 @@ class ChatPage extends GetView<ChatController> {
             child: SingleChildScrollView(
           child: Obx(() => Column(
                 children: [
-                  for (var i = 0; i < controller.messages.values.length; i++)
+                  for (Chat i in controller.chats.value.values)
                     ChatItem(
-                      lastMessage: controller.messages.values.toList()[i].last,
+                      chat: i,
+                      onTap: () => controller.goToMessage(i.user),
                     ),
                   for (var userOnlineIndex = 0;
                       userOnlineIndex < controller.userOnlines.length;
                       userOnlineIndex++)
                     InkWell(
-                      onTap: () => controller.goToMessage(userOnlineIndex),
+                      onTap: () => controller.goToMessage(
+                          controller.userOnlines[userOnlineIndex].user),
                       child: Container(
                           padding: EdgeInsets.all(10),
                           color: Colors.blue,
@@ -92,16 +95,14 @@ class ChatPage extends GetView<ChatController> {
 }
 
 class ChatItem extends StatelessWidget {
-  const ChatItem({super.key, required this.lastMessage});
-  final Message lastMessage;
+  const ChatItem({super.key, required this.chat, this.onTap});
+  final Chat chat;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Get.lazyPut<MessageController>(() => MessageController());
-        Get.to(() => const MessagePage());
-      },
+      onTap: onTap,
       child: Material(
         color: Colors.transparent,
         child: Container(
@@ -131,7 +132,7 @@ class ChatItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "${lastMessage.from}",
+                            "${chat.user.username}",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           Text(
@@ -141,7 +142,7 @@ class ChatItem extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        "${lastMessage.messageBody}",
+                        "${chat.latestMessage.messageBody}",
                         style: Theme.of(context).textTheme.bodySmall,
                       )
                     ],

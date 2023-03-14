@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:nanni_chat/src/models/chat.dart';
+import 'package:nanni_chat/src/models/message.dart';
+import 'package:path_provider/path_provider.dart';
 import '/src/data/hive_storage.dart';
 import '/src/models/user.dart';
 
@@ -17,7 +20,12 @@ class Global {
             Brightness.dark //or set color with: Color(0xFF0000FF)
         ));
     await Hive.initFlutter();
-    Hive.registerAdapter(UserAdapter());
+    final appDocDir = await getApplicationDocumentsDirectory();
+    Hive
+      ..init(appDocDir.path)
+      ..registerAdapter(UserAdapter())
+      ..registerAdapter(MessageAdapter())
+      ..registerAdapter(ChatAdapter());
     await HiveStorage.init();
     var userLogin = HiveStorage.getUserLogin();
     if (userLogin != null) {

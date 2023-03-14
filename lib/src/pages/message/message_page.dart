@@ -147,9 +147,7 @@ class MessagePage extends GetView<MessageController> {
                         child: Container(
                           child: Column(
                             children: [
-                              if (controller.messageUser.value != null &&
-                                  controller.messages.value.containsKey(
-                                      controller.messageUser.value!.userId))
+                              if (controller.currentUserMessagesBox.value != null)
                                 for (var messageIndex = 0;
                                     messageIndex <
                                         controller
@@ -189,17 +187,19 @@ class MessagePage extends GetView<MessageController> {
 
   Widget _messageItem(int index) {
     var mType = MessageItemType.full;
+
+    print(controller.currentUserMessagesBox);
     if (controller
-            .messages.value[controller.messageUser.value?.userId]!.length >
+            .currentUserMessagesBox!.value.length >
         1) {
       var userMessages =
-          controller.messages.value[controller.messageUser.value?.userId];
+          controller.currentUserMessagesBox.value;
 
-      var currentMessage = userMessages![index];
+      var currentMessage = userMessages.get(index);
 
       if (index < userMessages.length - 1 && index > 0) {
-        var previousMessage = userMessages[index - 1];
-        var nextMessage = userMessages[index + 1];
+        var previousMessage = userMessages.get(index - 1);
+        var nextMessage = userMessages.get(index + 1);
         if (currentMessage.from != previousMessage.from &&
             (currentMessage.from != nextMessage.from ||
                 index == userMessages.length)) {
@@ -217,25 +217,23 @@ class MessagePage extends GetView<MessageController> {
       } else {
         if (userMessages.length == 1 ||
             (index == userMessages.length - 1 &&
-                    currentMessage.from != userMessages[index - 1].from ||
+                    currentMessage.from != userMessages.get(index - 1).from ||
                 (index == 0 &&
-                    currentMessage.from != userMessages[index + 1].from))) {
+                    currentMessage.from != userMessages.get(index + 1).from))) {
           mType = MessageItemType.full;
         } else if (index == 0 &&
-            currentMessage.from == userMessages[index + 1].from) {
+            currentMessage.from == userMessages.get(index + 1).from) {
           mType = MessageItemType.first;
         } else {
           mType = MessageItemType.last;
         }
       }
     }
-
+    var current = controller.currentUserMessagesBox.value.get(index);
     return MessageItem(
-      isMe: controller.messages
-              .value[controller.messageUser.value?.userId]![index].from ==
+      isMe: current.from ==
           Global.userInfo!.userId,
-      content: controller.messages
-          .value[controller.messageUser.value?.userId]![index].messageBody,
+      content: current.messageBody,
       type: mType,
     );
   }

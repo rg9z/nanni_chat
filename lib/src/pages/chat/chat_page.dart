@@ -2,13 +2,10 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:nanni_chat/src/common/colors.dart';
-import 'package:nanni_chat/src/global.dart';
-import 'package:nanni_chat/src/models/chat.dart';
-import 'package:nanni_chat/src/models/message.dart';
-import 'package:nanni_chat/src/pages/message/message_controller.dart';
-import 'package:nanni_chat/src/pages/message/message_page.dart';
-import 'package:nanni_chat/src/widgets/flex_tool_bar.dart';
+import '../../common/colors.dart';
+import '../../global.dart';
+import '../../models/chat.dart';
+import '../../widgets/flex_tool_bar.dart';
 
 import 'chat_controller.dart';
 
@@ -30,16 +27,12 @@ class ChatPage extends GetView<ChatController> {
                       width: 32,
                       alignment: Alignment.center,
                       margin: EdgeInsets.only(right: 10),
-                      decoration: ShapeDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.cyan,
-                        shape: SmoothRectangleBorder(
-                          borderRadius: SmoothBorderRadius(
-                            cornerRadius: 10,
-                            cornerSmoothing: 1,
-                          ),
-                        ),
+                        shape: BoxShape.circle,
                       ),
-                      child: Text("YN")),
+                      child: Image.asset(
+                          "assets/images/avatars/${Global.userInfo.avatar}.png")),
                   Text(Global.userInfo?.username ?? '')
                 ],
               ),
@@ -101,6 +94,7 @@ class ChatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("${chat.user}");
     return InkWell(
       onTap: onTap,
       child: Material(
@@ -118,6 +112,8 @@ class ChatItem extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Color.fromARGB(255, 224, 157, 167),
                 ),
+                // child: Image.asset(
+                //     "assets/images/avatars/${chat.user.avatar}.png"),
               ),
               Expanded(
                 child: Container(

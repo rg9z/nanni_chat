@@ -63,7 +63,7 @@ class ChatController extends GetxController {
     });
   }
 
-  void addNewMessage(Message newMessage) async {
+  Future<void> addNewMessage(Message newMessage) async {
     var messageKey = newMessage.from == Global.userInfo!.userId
         ? newMessage.to
         : newMessage.from;
@@ -89,7 +89,6 @@ class ChatController extends GetxController {
     } else {
       updateChat.latestMessage = newMessage;
       updateChat.save();
-
     }
     if (currentChatReady.value != null &&
         currentChatReady.value!.userId == messageKey) {

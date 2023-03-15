@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:nanni_chat/src/data/hive_storage.dart';
-import 'package:nanni_chat/src/models/chat.dart';
 import 'package:nanni_chat/src/models/user.dart';
 import 'package:nanni_chat/src/pages/chat/chat_controller.dart';
 
@@ -19,10 +16,10 @@ class MessageController extends GetxController {
   ScrollController scrollController = ScrollController();
   var currentUserMessagesBox = Rxn();
   var currentMessagesLength = 20.obs;
+  var showtime = Rxn();
   var ls;
   @override
   void onInit() {
-    
     initMessage();
     super.onInit();
   }
@@ -42,7 +39,7 @@ class MessageController extends GetxController {
     ls?.cancel();
   }
 
-  void initMessage() async{
+  void initMessage() async {
     try {
       messageUser.value = Get.arguments['user']!;
       await openMessagesBox();
@@ -64,14 +61,16 @@ class MessageController extends GetxController {
       print(e);
     }
   }
-  Future<void>  openMessagesBox() async{
+
+  Future<void> openMessagesBox() async {
     // currentUserMessagesBox = await Hive.openBox<Message>(messageUser.value!.userId!);
     // messages.value = currentUserMessagesBox.values.toList();
     // print(messages);
     // print(currentUserMessagesBox);
     currentUserMessagesBox.value = messages[messageUser.value!.userId];
   }
-  void onSendMessage() {
+
+  void onSendMessage() async {
     MessageType type = MessageType.text;
     Message message = Message(
         chatId: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -91,10 +90,10 @@ class MessageController extends GetxController {
     // await messagesBox.put(chatUserInfo.userId.toString(),
     //     [...usersMap[chatUserInfo.userId]['message'], message]);
 
-    Get.find<ChatController>().addNewMessage(message);
-    if(currentUserMessagesBox.value == null){
-     currentUserMessagesBox.value = messages[messageUser.value!.userId];
-     currentUserMessagesBox.refresh();
+    await Get.find<ChatController>().addNewMessage(message);
+    if (currentUserMessagesBox.value == null) {
+      currentUserMessagesBox.value = messages[messageUser.value!.userId];
+      currentUserMessagesBox.refresh();
     }
     // send to socket.
     socket.sendMessageHandler(message.toJson());

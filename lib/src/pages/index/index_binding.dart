@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:nanni_chat/src/pages/profile/profile_controller.dart';
 import 'package:nanni_chat/src/pages/settings/settings_controller.dart';
 import '../chat/chat_controller.dart';
 import '../discover/discover_controller.dart';
@@ -15,5 +16,6 @@ class IndexBinding extends Bindings {
     Get.lazyPut<ChatController>(() => ChatController());
     Get.lazyPut<DiscoverController>(() => DiscoverController());
     Get.lazyPut<SettingsController>(() => SettingsController());
+    Get.lazyPut<ProfileController>(() => ProfileController());
   }
 }

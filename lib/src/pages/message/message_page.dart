@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:nanni_chat/src/global.dart';
 import 'package:nanni_chat/src/models/message.dart';
 import 'package:nanni_chat/src/widgets/flex_tool_bar.dart';
@@ -136,32 +137,30 @@ class MessagePage extends GetView<MessageController> {
               Container(
                 margin:
                     EdgeInsets.only(bottom: 8 + getDeviceBottomHeight(context)),
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Obx(() => ClipRRect(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(24),
                         bottomRight: Radius.circular(24),
                       ),
                       child: SingleChildScrollView(
                         controller: controller.scrollController,
-                        child: Container(
-                          child: Column(
-                            children: [
-                              if (controller.currentUserMessagesBox.value != null)
-                                for (var messageIndex = 0;
-                                    messageIndex <
-                                        controller
-                                            .messages
-                                            .value[controller
-                                                .messageUser.value?.userId]!
-                                            .length;
-                                    messageIndex++)
-                                  _messageItem(messageIndex),
-                              SizedBox(
-                                height: kBottomNavigationBarHeight,
-                              )
-                            ],
-                          ),
+                        child: Column(
+                          children: [
+                            if (controller.currentUserMessagesBox.value != null)
+                              for (var messageIndex = 0;
+                                  messageIndex <
+                                      controller
+                                          .messages
+                                          .value[controller
+                                              .messageUser.value?.userId]!
+                                          .length;
+                                  messageIndex++)
+                                _messageItem(messageIndex),
+                            const SizedBox(
+                              height: kBottomNavigationBarHeight,
+                            )
+                          ],
                         ),
                       ),
                     )),
@@ -187,13 +186,9 @@ class MessagePage extends GetView<MessageController> {
 
   Widget _messageItem(int index) {
     var mType = MessageItemType.full;
-
-    print(controller.currentUserMessagesBox);
-    if (controller
-            .currentUserMessagesBox!.value.length >
-        1) {
-      var userMessages =
-          controller.currentUserMessagesBox.value;
+    var isReply = false;
+    if (controller.currentUserMessagesBox!.value.length > 1) {
+      var userMessages = controller.currentUserMessagesBox.value;
 
       var currentMessage = userMessages.get(index);
 
@@ -229,12 +224,15 @@ class MessagePage extends GetView<MessageController> {
         }
       }
     }
-    var current = controller.currentUserMessagesBox.value.get(index);
+    Message current = controller.currentUserMessagesBox.value.get(index);
     return MessageItem(
-      isMe: current.from ==
-          Global.userInfo!.userId,
+      isMe: current.from == Global.userInfo!.userId,
       content: current.messageBody,
       type: mType,
+      at: current.createdAt,
+      isShowTime: index == controller.showtime.value,
+      onTap: () => controller.showtime.value =
+          controller.showtime.value != index ? index : null,
     );
   }
 }
@@ -247,17 +245,24 @@ class MessageItem extends StatefulWidget {
       this.isMe = true,
       this.content = "this is content",
       this.at = '04:00PM',
-      this.type = MessageItemType.full});
+      this.type = MessageItemType.full,
+      this.isShowTime = false,
+      this.isNewReply = false,
+      this.onTap});
   final bool isMe;
+  final bool isNewReply;
+  final bool isShowTime;
   final String? content;
   final String? at;
   final MessageItemType type;
+  final Function()? onTap;
 
   @override
   State<MessageItem> createState() => _MessageItemState();
 }
 
 class _MessageItemState extends State<MessageItem> {
+  bool showTime = false;
   BorderRadius _meFirst() {
     return const BorderRadius.only(
       topLeft: Radius.circular(24),
@@ -366,22 +371,58 @@ class _MessageItemState extends State<MessageItem> {
         }
       }
     }
-    return AnimatedContainer(
-      margin: EdgeInsets.only(bottom: 6),
-      duration: Duration(milliseconds: 250),
-      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
+    return Container(
+      margin: EdgeInsets.only(
+          bottom: 2,
+          top: widget.type == MessageItemType.first ||
+                  widget.type == MessageItemType.full
+              ? 10
+              : 0),
+      // color: Colors.amber,
+      child: Stack(
         children: [
           AnimatedContainer(
-              duration: Duration(milliseconds: 50),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              constraints:
-                  BoxConstraints(maxWidth: getDeviceWidth(context) * 0.7),
-              decoration: BoxDecoration(
-                color: widget.isMe ? AppColors.cyan : AppColors.darkSecond,
-                borderRadius: borderRadius,
+            duration: const Duration(milliseconds: 250),
+            width: double.infinity,
+            curve: Curves.linear,
+            // color: Colors.amber,
+            alignment: Alignment.center,
+            margin: EdgeInsets.symmetric(vertical: 4),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: widget.isShowTime ? 1 : 0,
+              child: Text(
+                DateFormat('hh:mm a').format(
+                    DateTime.fromMillisecondsSinceEpoch(int.parse(widget.at!))),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              child: Text("${widget.content}"))
+            ),
+          ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            margin: EdgeInsets.only(top: widget.isShowTime ? 32 : 0),
+            alignment:
+                widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: Column(
+                children: [
+                  AnimatedContainer(
+                      duration: const Duration(milliseconds: 50),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      constraints: BoxConstraints(
+                          maxWidth: getDeviceWidth(context) * 0.7),
+                      decoration: BoxDecoration(
+                        color:
+                            widget.isMe ? AppColors.cyan : AppColors.darkSecond,
+                        borderRadius: borderRadius,
+                      ),
+                      child: Text("${widget.content}")),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -7,20 +7,25 @@ class User {
   String? userId;
   @HiveField(1)
   String? username;
+  @HiveField(3)
+  String? avatar;
   User({
     this.username,
     this.userId,
+    this.avatar,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         userId: json["user_id"],
         username: json["username"],
+        avatar: json["avatar"],
       );
 
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,
       'username': username,
+      'avatar': avatar,
     };
   }
 

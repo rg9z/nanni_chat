@@ -17,7 +17,7 @@ class IndexPage extends GetView<IndexController> {
           body: controller.isloadWelcomePage.isTrue
               ? SplashPage()
               : Global.isOfflineLogin
-                  ? ProfilePage()
+                  ? HomePage()
                   : const LoginPage(),
         ));
   }

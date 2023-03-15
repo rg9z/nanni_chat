@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:nanni_chat/src/models/user.dart';
 
 import '../../config.dart';
@@ -17,6 +19,17 @@ class UserRepository {
     } catch (e) {
       print(e);
       return null;
+    }
+  }
+
+  Future<dynamic> createProfile(
+      String username, String userId, String avatar) async {
+    try {
+      var body = {'username': username, 'userId': userId, 'avatar': avatar};
+      var response = await dio.post('${SERVER_URL}/createProfile', data: body);
+      return response.data;
+    } catch (err) {
+      print("error $err");
     }
   }
 }

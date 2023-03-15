@@ -7,6 +7,7 @@ class SimpleButton extends StatefulWidget {
   final double borderRadius;
   final bool fitWidth;
   final EdgeInsets? margin;
+  final TextStyle? textStyle;
   const SimpleButton(
       {super.key,
       this.onTap,
@@ -14,6 +15,7 @@ class SimpleButton extends StatefulWidget {
       this.backgroundColor = Colors.black,
       this.borderRadius = 16.0,
       this.fitWidth = true,
+      this.textStyle,
       this.margin});
 
   @override
@@ -49,7 +51,7 @@ class _SimpleButtonState extends State<SimpleButton> {
                       child: Center(
                         child: Text(
                           widget.text,
-                          style: TextStyle(color: Colors.white),
+                          style: widget.textStyle,
                         ),
                       ),
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nanni_chat/src/pages/profile/profile_page.dart';
 
 import '../../global.dart';
 import '../home/home_page.dart';
@@ -16,7 +17,7 @@ class IndexPage extends GetView<IndexController> {
           body: controller.isloadWelcomePage.isTrue
               ? SplashPage()
               : Global.isOfflineLogin
-                  ? HomePage()
+                  ? ProfilePage()
                   : const LoginPage(),
         ));
   }

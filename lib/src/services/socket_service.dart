@@ -27,7 +27,8 @@ class SocketService {
     socket.auth = {
       'username': user.username,
       'userId': user.userId,
-      'sessionID': sessionId
+      'sessionID': sessionId,
+      'avatar': user.avatar,
     };
     socket.connect();
   }

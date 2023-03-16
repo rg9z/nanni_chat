@@ -80,13 +80,10 @@ class MessagePage extends GetView<MessageController> {
                         Container(
                           margin: const EdgeInsets.only(right: 6),
                           child: IconButton(
-                            icon: Transform.rotate(
-                              angle: pi,
-                              child: SvgPicture.asset(
-                                "assets/images/svgs/send.svg",
-                                height: 32,
-                                color: AppColors.mint,
-                              ),
+                            icon: SvgPicture.asset(
+                              "assets/images/svgs/send.svg",
+                              height: 32,
+                              color: AppColors.mint,
                             ),
                             iconSize: 32.0,
                             onPressed: () => controller.onSendMessage(),
@@ -127,6 +124,7 @@ class MessagePage extends GetView<MessageController> {
                   width: 32,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle, color: Colors.amberAccent),
+                      child: Image.asset("assets/images/avatars/${controller.messageUser.value!.avatar}.png"),
                 )
               ],
             ),
@@ -387,7 +385,7 @@ class _MessageItemState extends State<MessageItem> {
             curve: Curves.linear,
             // color: Colors.amber,
             alignment: Alignment.center,
-            margin: EdgeInsets.symmetric(vertical: 4),
+            margin: EdgeInsets.symmetric(vertical: 4,),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
               opacity: widget.isShowTime ? 1 : 0,
@@ -400,7 +398,7 @@ class _MessageItemState extends State<MessageItem> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
-            margin: EdgeInsets.only(top: widget.isShowTime ? 32 : 0),
+            margin: EdgeInsets.only(top: widget.isShowTime ? 32 : 0, left: 6, right: 6),
             alignment:
                 widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
             child: GestureDetector(
@@ -410,12 +408,12 @@ class _MessageItemState extends State<MessageItem> {
                   AnimatedContainer(
                       duration: const Duration(milliseconds: 50),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                          horizontal: 16, vertical: 8),
                       constraints: BoxConstraints(
                           maxWidth: getDeviceWidth(context) * 0.7),
                       decoration: BoxDecoration(
                         color:
-                            widget.isMe ? AppColors.cyan : AppColors.darkSecond,
+                            widget.isMe ? AppColors.blue : AppColors.darkSecond,
                         borderRadius: borderRadius,
                       ),
                       child: Text("${widget.content}")),

@@ -7,7 +7,7 @@ class User {
   String? userId;
   @HiveField(1)
   String? username;
-  @HiveField(3)
+  @HiveField(2)
   String? avatar;
   User({
     this.username,

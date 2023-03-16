@@ -56,6 +56,13 @@ class MessageController extends GetxController {
                 curve: Curves.easeOut);
           }
         });
+        var updateChat =
+        Get.find<ChatController>().chats.value.get(messageUser.value!.userId);
+    if (updateChat != null) {
+      updateChat.isRead = true;
+      updateChat.save();
+      Get.find<ChatController>().chats.refresh();
+    }
       });
     } catch (e) {
       print(e);
@@ -68,6 +75,13 @@ class MessageController extends GetxController {
     // print(messages);
     // print(currentUserMessagesBox);
     currentUserMessagesBox.value = messages[messageUser.value!.userId];
+    var updateChat =
+        Get.find<ChatController>().chats.value.get(messageUser.value!.userId);
+    if (updateChat != null) {
+      updateChat.isRead = true;
+      await updateChat.save();
+      Get.find<ChatController>().chats.refresh();
+    }
   }
 
   void onSendMessage() async {

@@ -9,7 +9,20 @@ class DiscoverPage extends GetView<DiscoverController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Center(child: Text('disvover')),
+      child: Center(child: Wrap(
+        children: [ for (var userOnlineIndex = 0;
+                      userOnlineIndex < controller.userOnlines.length;
+                      userOnlineIndex++)
+                    InkWell(
+                      onTap: () => controller.goToMessage(
+                          controller.userOnlines[userOnlineIndex].user),
+                      child: Container(
+                          padding: EdgeInsets.all(10),
+                          color: Colors.blue,
+                          margin: EdgeInsets.all(6),
+                          child: Text(
+                              "${controller.userOnlines[userOnlineIndex].user.username}")),
+                    )],)),
     );
   }
 }

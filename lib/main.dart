@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
             bodyLarge: TextStyle(color: Colors.white),
             bodyMedium: TextStyle(
               color: Colors.white,
+              fontSize: 16
             ),
             bodySmall: TextStyle(color: AppColors.grey),
             titleLarge: TextStyle(color: Colors.white),

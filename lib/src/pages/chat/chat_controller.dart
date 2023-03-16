@@ -49,6 +49,7 @@ class ChatController extends GetxController {
     socketService.onUsers((users) async {
       var usersSession = <UserOnline>[];
       users.forEach((user) {
+        if(user['user_id'] != Global.userInfo.userId)
         usersSession.add(
             UserOnline(user: User.fromJson(user), isOnline: user['connected']));
       });
@@ -88,6 +89,8 @@ class ChatController extends GetxController {
               latestMessage: newMessage));
     } else {
       updateChat.latestMessage = newMessage;
+      updateChat.updateAt = newMessage.createdAt;
+      updateChat.isRead = false;
       updateChat.save();
     }
     if (currentChatReady.value != null &&

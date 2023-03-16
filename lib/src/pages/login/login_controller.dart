@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nanni_chat/src/data/hive_storage.dart';
 import 'package:nanni_chat/src/global.dart';
-import 'package:nanni_chat/src/models/user.dart';
 import 'package:nanni_chat/src/pages/home/home_page.dart';
 import 'package:nanni_chat/src/pages/profile/profile_page.dart';
 
@@ -14,7 +13,7 @@ class LoginController extends GetxController {
     clientId:
         "740476578502-gg9u6eul97tihtqp9levk8b9hbstg073.apps.googleusercontent.com",
   );
-  UserRepository _loginRepository = UserRepository();
+  final UserRepository _loginRepository = UserRepository();
   @override
   void onInit() {
     super.onInit();

@@ -30,7 +30,7 @@ class ProfileController extends GetxController {
       if (usernameController.text != '') {
         var data = Get.arguments;
         var response = await _userRepository.createProfile(
-            usernameController.text, data['userId'], avatarSelected.toString());
+            usernameController.text, data['userId'], (avatarSelected + 1).toString());
         if (response['success']) {
           //
           var user = response['user'];

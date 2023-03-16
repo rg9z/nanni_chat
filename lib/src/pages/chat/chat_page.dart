@@ -2,6 +2,7 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import '../../common/colors.dart';
 import '../../global.dart';
 import '../../models/chat.dart';
@@ -31,8 +32,8 @@ class ChatPage extends GetView<ChatController> {
                         color: AppColors.cyan,
                         shape: BoxShape.circle,
                       ),
-                      child: Image.asset(
-                          "assets/images/avatars/${Global.userInfo.avatar}.png")),
+                      child: Global.userInfo.avatar != null ? Image.asset(
+                          "assets/images/avatars/${Global.userInfo.avatar}.png") : Container()),
                   Text(Global.userInfo?.username ?? '')
                 ],
               ),
@@ -66,19 +67,6 @@ class ChatPage extends GetView<ChatController> {
                       chat: i,
                       onTap: () => controller.goToMessage(i.user),
                     ),
-                  for (var userOnlineIndex = 0;
-                      userOnlineIndex < controller.userOnlines.length;
-                      userOnlineIndex++)
-                    InkWell(
-                      onTap: () => controller.goToMessage(
-                          controller.userOnlines[userOnlineIndex].user),
-                      child: Container(
-                          padding: EdgeInsets.all(10),
-                          color: Colors.blue,
-                          margin: EdgeInsets.all(6),
-                          child: Text(
-                              "${controller.userOnlines[userOnlineIndex].user.username}")),
-                    )
                 ],
               )),
         ))
@@ -96,6 +84,7 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     print("${chat.user}");
     return InkWell(
+      splashColor: Colors.transparent,
       onTap: onTap,
       child: Material(
         color: Colors.transparent,
@@ -112,8 +101,8 @@ class ChatItem extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Color.fromARGB(255, 224, 157, 167),
                 ),
-                // child: Image.asset(
-                //     "assets/images/avatars/${chat.user.avatar}.png"),
+                child: chat.user.avatar != null ? Image.asset(
+                    "assets/images/avatars/${chat.user.avatar}.png") : Container(),
               ),
               Expanded(
                 child: Container(
@@ -129,17 +118,38 @@ class ChatItem extends StatelessWidget {
                         children: [
                           Text(
                             "${chat.user.username}",
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: chat.isRead == true ?  Theme.of(context).textTheme.bodyMedium : TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
+                          if(chat.updateAt != null)
                           Text(
-                            '04:00PM',
+                            DateFormat('hh:mm a').format(
+                    DateTime.fromMillisecondsSinceEpoch(int.parse(chat.updateAt!))),
                             style: Theme.of(context).textTheme.bodySmall,
                           )
                         ],
                       ),
-                      Text(
-                        "${chat.latestMessage.messageBody}",
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              
+                              "${chat.latestMessage.messageBody}",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.bodySmall ,
+                            ),
+                          ),
+                          if(chat.isRead == false)
+                          Container(
+                            height: 10,
+                            width: 10,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.blue
+                            ),
+                          )
+                        ],
                       )
                     ],
                   ),

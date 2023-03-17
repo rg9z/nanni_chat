@@ -9,6 +9,7 @@ import '../../models/message.dart';
 class MessageController extends GetxController {
   var socket = Get.find<ChatController>().socketService;
   TextEditingController contentController = TextEditingController();
+  late FocusNode contentFocusNode;
   var messages = Get.find<ChatController>().messages;
   var readyChatListener = Get.find<ChatController>().readyChatListener;
   // var messages = [].obs;
@@ -17,15 +18,23 @@ class MessageController extends GetxController {
   var currentUserMessagesBox = Rxn();
   var currentMessagesLength = 20.obs;
   var showtime = Rxn();
+
+  final showSticker = false.obs;
   var ls;
   @override
   void onInit() {
+    contentFocusNode = FocusNode();
+   
     initMessage();
     super.onInit();
   }
 
   @override
-  void onReady() {}
+  void onReady() {
+     contentFocusNode.addListener(() {
+     
+    },);
+  }
 
   @override
   void onClose() {
@@ -37,21 +46,23 @@ class MessageController extends GetxController {
     // TODO: implement dispose
     super.dispose();
     ls?.cancel();
+        contentFocusNode.dispose();
   }
 
   void initMessage() async {
     try {
       messageUser.value = Get.arguments['user']!;
       await openMessagesBox();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollController.jumpTo(scrollController.position.maxScrollExtent);
-      });
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   scrollController.jumpTo(0);
+      // });
 
       ls = readyChatListener.listen((p0) {
+        
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (scrollController != null) {
             scrollController.animateTo(
-                scrollController.position.maxScrollExtent,
+                0,
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOut);
           }
@@ -111,5 +122,14 @@ class MessageController extends GetxController {
     }
     // send to socket.
     socket.sendMessageHandler(message.toJson());
+  }
+
+  void stickerToggle(){
+    showSticker.value = !showSticker.value;
+    if(showSticker.value){
+      contentFocusNode.unfocus();
+    }else{
+      contentFocusNode.requestFocus();
+    }
   }
 }

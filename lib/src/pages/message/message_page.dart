@@ -11,16 +11,18 @@ import 'package:nanni_chat/src/widgets/flex_tool_bar.dart';
 
 import '../../common/colors.dart';
 import '../../ultis/screen_device.dart';
+import '../../widgets/patched_sliver_animated_list.dart';
 import 'message_controller.dart';
 
 class MessagePage extends GetView<MessageController> {
   const MessagePage({Key? key}) : super(key: key);
-  _buildMessageComposer() {
+
+  _buildMessageComposer(context) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,
       ),
-      // height: 70.0,
+      height: 56,
       // color: Colors.white,
       child: Column(
         children: [
@@ -62,13 +64,16 @@ class MessagePage extends GetView<MessageController> {
                           ),
                           iconSize: 24.0,
                           color: AppColors.cyan,
-                          onPressed: () {},
+                          onPressed: () {
+                            controller.stickerToggle();
+                          },
                         ),
                         Expanded(
                           child: TextField(
                             keyboardType: TextInputType.multiline,
                             maxLines: 4,
                             minLines: 1,
+                            focusNode: controller.contentFocusNode,
                             textCapitalization: TextCapitalization.sentences,
                             controller: controller.contentController,
                             onChanged: (String value) {},
@@ -99,7 +104,7 @@ class MessagePage extends GetView<MessageController> {
           Container(
             height: 8,
             color: AppColors.darkPrimary,
-          ),
+          )
         ],
       ),
     );
@@ -107,79 +112,109 @@ class MessagePage extends GetView<MessageController> {
 
   @override
   Widget build(BuildContext context) {
+    var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Column(
-        children: [
-          FlexToolBar(
-            hasBack: true,
-            lightMode: true,
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Obx(() => Text(controller.messageUser.value?.username ?? '')),
-                Container(
-                  height: 32,
-                  width: 32,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.amberAccent),
-                      child: Image.asset("assets/images/avatars/${controller.messageUser.value!.avatar}.png"),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-              child: Stack(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Column(
             children: [
-              Container(
-                margin:
-                    EdgeInsets.only(bottom: 8 + getDeviceBottomHeight(context)),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Obx(() => ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: controller.scrollController,
-                        child: Column(
-                          children: [
-                            if (controller.currentUserMessagesBox.value != null)
-                              for (var messageIndex = 0;
-                                  messageIndex <
-                                      controller
-                                          .messages
-                                          .value[controller
-                                              .messageUser.value?.userId]!
-                                          .length;
-                                  messageIndex++)
-                                _messageItem(messageIndex),
-                            const SizedBox(
-                              height: kBottomNavigationBarHeight,
-                            )
-                          ],
-                        ),
-                      ),
-                    )),
+              FlexToolBar(
+                hasBack: true,
+                lightMode: true,
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Obx(() =>
+                        Text(controller.messageUser.value?.username ?? '')),
+                    Container(
+                      height: 32,
+                      width: 32,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle, color: Colors.amberAccent),
+                      child: Image.asset(
+                          "assets/images/avatars/${controller.messageUser.value!.avatar}.png"),
+                    )
+                  ],
+                ),
               ),
-              Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildMessageComposer(),
-                      Container(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        height: getDeviceBottomHeight(context),
-                      )
-                    ],
+              Expanded(
+                  child: Stack(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(
+                      bottom: 8,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Obx(() => ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(24),
+                            bottomRight: Radius.circular(24),
+                          ),
+                          //     child: SingleChildScrollView(
+                          //       controller: controller.scrollController,
+                          //       reverse: true,
+                          //       child: Column(
+                          //         mainAxisAlignment: MainAxisAlignment.start,
+                          // mainAxisSize: MainAxisSize.min,
+                          //         children: [
+                          //           if (controller.currentUserMessagesBox.value != null)
+                          //             for (var messageIndex = 0;
+                          //                 messageIndex <
+                          //                     controller
+                          //                         .messages
+                          //                         .value[controller
+                          //                             .messageUser.value?.userId]!
+                          //                         .length;
+                          //                 messageIndex++)
+                          //               _messageItem(messageIndex),
+                          //           const SizedBox(
+                          //             height: 56,
+                          //           )
+                          //         ],
+                          //       ),
+                          //     ),
+                          child: CustomScrollView(
+                            controller: controller.scrollController,
+                            reverse: true,
+                            slivers: [
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                    print(index);
+                                    return _messageItem(index);
+                                  },
+                                  childCount: controller
+                                      .messages
+                                      .value[
+                                          controller.messageUser.value?.userId]!
+                                      .length,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildMessageComposer(context),
+                        ],
+                      )),
+                ],
+              )),
+              Obx(() => AnimatedContainer(
+                    duration: Duration(milliseconds: 0),
+                    height: (controller.showSticker.isTrue
+                        ? getDeviceBottomHeight(context) + 300
+                        : getDeviceBottomHeight(context) + keyboardHeight),
+                    color: Color.fromARGB(255, 9, 128, 246),
                   )),
             ],
-          )),
-        ],
-      ),
-    ));
+          ),
+        ));
   }
 
   Widget _messageItem(int index) {
@@ -385,7 +420,9 @@ class _MessageItemState extends State<MessageItem> {
             curve: Curves.linear,
             // color: Colors.amber,
             alignment: Alignment.center,
-            margin: EdgeInsets.symmetric(vertical: 4,),
+            margin: EdgeInsets.symmetric(
+              vertical: 4,
+            ),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
               opacity: widget.isShowTime ? 1 : 0,
@@ -398,7 +435,8 @@ class _MessageItemState extends State<MessageItem> {
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
-            margin: EdgeInsets.only(top: widget.isShowTime ? 32 : 0, left: 6, right: 6),
+            margin: EdgeInsets.only(
+                top: widget.isShowTime ? 32 : 0, left: 6, right: 6),
             alignment:
                 widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
             child: GestureDetector(

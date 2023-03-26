@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:nanni_chat/src/data/app_database.dart';
+import 'package:nanni_chat/src/data/app_db.dart';
 import 'package:nanni_chat/src/models/chat.dart';
 import 'package:nanni_chat/src/models/message.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +12,7 @@ import '/src/models/user.dart';
 class Global {
   static bool isOfflineLogin = false;
   static var userInfo;
+  static AppDatabase database = AppDatabase();
 
   /// init
   static Future init() async {
@@ -34,5 +37,6 @@ class Global {
     } else {
       isOfflineLogin = false;
     }
+    AppDB.init(database);
   }
 }

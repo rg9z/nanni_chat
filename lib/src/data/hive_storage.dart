@@ -37,12 +37,11 @@ class HiveStorage {
     globalBox.delete(key);
   }
 
-  static saveMessage(Message message, String uid){
-
-  }
-  static saveChat(Chat chat, String uid){
+  static saveMessage(Message message, String uid) {}
+  static saveChat(Chat chat, String uid) {
     chatsBox.put(uid, chat);
   }
+
   static Future<dynamic> getBox(String key) async {
     return await Hive.openBox<Map>(key);
   }

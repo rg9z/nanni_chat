@@ -23,3 +23,7 @@ const double kIconSize = 24.0;
 
 /// Pi value
 const double kPi = 3.1415926535897932;
+
+/// max messages in chat
+
+const maxMessage = 20;

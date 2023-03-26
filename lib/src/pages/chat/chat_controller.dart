@@ -42,16 +42,15 @@ class ChatController extends GetxController {
     for (var chat in HiveStorage.chatsBox.keys) {
       messages[chat] = await Hive.openBox<Message>(chat);
     }
-    print(messages);
   }
 
   void onUsersSession() async {
     socketService.onUsers((users) async {
       var usersSession = <UserOnline>[];
       users.forEach((user) {
-        if(user['user_id'] != Global.userInfo.userId)
-        usersSession.add(
-            UserOnline(user: User.fromJson(user), isOnline: user['connected']));
+        if (user['user_id'] != Global.userInfo.userId)
+          usersSession.add(UserOnline(
+              user: User.fromJson(user), isOnline: user['connected']));
       });
       userOnlines.value = usersSession;
     });

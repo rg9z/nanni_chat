@@ -11,12 +11,14 @@ import 'package:nanni_chat/src/widgets/flex_tool_bar.dart';
 
 import '../../common/colors.dart';
 import '../../ultis/screen_device.dart';
+import '../../widgets/card_item.dart';
 import '../../widgets/patched_sliver_animated_list.dart';
 import 'message_controller.dart';
 
 class MessagePage extends GetView<MessageController> {
-  const MessagePage({Key? key}) : super(key: key);
-
+  MessagePage({Key? key}) : super(key: key);
+  late List<Object> _oldData =
+      List.from(controller.currentUserMessagesBox as Iterable);
   _buildMessageComposer(context) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -132,8 +134,10 @@ class MessagePage extends GetView<MessageController> {
                       width: 32,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle, color: Colors.amberAccent),
-                      child: Image.asset(
-                          "assets/images/avatars/${controller.messageUser.value!.avatar}.png"),
+                      child: controller.messageUser.value!.avatar != null
+                          ? Image.asset(
+                              "assets/images/avatars/${controller.messageUser.value!.avatar}.png")
+                          : Container(),
                     )
                   ],
                 ),
@@ -146,54 +150,66 @@ class MessagePage extends GetView<MessageController> {
                       bottom: 8,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Obx(() => ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(24),
-                            bottomRight: Radius.circular(24),
-                          ),
-                          //     child: SingleChildScrollView(
-                          //       controller: controller.scrollController,
-                          //       reverse: true,
-                          //       child: Column(
-                          //         mainAxisAlignment: MainAxisAlignment.start,
-                          // mainAxisSize: MainAxisSize.min,
-                          //         children: [
-                          //           if (controller.currentUserMessagesBox.value != null)
-                          //             for (var messageIndex = 0;
-                          //                 messageIndex <
-                          //                     controller
-                          //                         .messages
-                          //                         .value[controller
-                          //                             .messageUser.value?.userId]!
-                          //                         .length;
-                          //                 messageIndex++)
-                          //               _messageItem(messageIndex),
-                          //           const SizedBox(
-                          //             height: 56,
-                          //           )
-                          //         ],
-                          //       ),
-                          //     ),
-                          child: CustomScrollView(
-                            controller: controller.scrollController,
-                            reverse: true,
-                            slivers: [
-                              SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (BuildContext context, int index) {
-                                    print(index);
-                                    return _messageItem(index);
-                                  },
-                                  childCount: controller
-                                      .messages
-                                      .value[
-                                          controller.messageUser.value?.userId]!
-                                      .length,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                      //     child: SingleChildScrollView(
+                      //       controller: controller.scrollController,
+                      //       reverse: true,
+                      //       child: Column(
+                      //         mainAxisAlignment: MainAxisAlignment.start,
+                      // mainAxisSize: MainAxisSize.min,
+                      //         children: [
+                      //           if (controller.currentUserMessagesBox.value != null)
+                      //             for (var messageIndex = 0;
+                      //                 messageIndex <
+                      //                     controller
+                      //                         .messages
+                      //                         .value[controller
+                      //                             .messageUser.value?.userId]!
+                      //                         .length;
+                      //                 messageIndex++)
+                      //               _messageItem(messageIndex),
+                      //           const SizedBox(
+                      //             height: 56,
+                      //           )
+                      //         ],
+                      //       ),
+                      //     ),
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification.metrics.pixels <
+                                  notification.metrics.maxScrollExtent &&
+                              controller.hasLoadMore.isFalse &&
+                              controller.showOver.isFalse) {
+                            controller.loadMore();
+                          }
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          controller: controller.scrollController,
+                          reverse: true,
+                          slivers: [
+                            SliverPadding(
+                              padding: EdgeInsets.only(bottom: 56),
+                              sliver: Obx(() => controller
+                                      .listMessage.isNotEmpty
+                                  ? SliverAnimatedList(
+                                      initialItemCount:
+                                          controller.listMessage.length ?? 0,
+                                      key: controller.listKey,
+                                      itemBuilder: _buildItem)
+                                  : SliverAnimatedList(
+                                      initialItemCount: 0,
+                                      itemBuilder: _buildItem,
+                                    )),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                   Align(
                       alignment: Alignment.bottomCenter,
@@ -210,11 +226,26 @@ class MessagePage extends GetView<MessageController> {
                     height: (controller.showSticker.isTrue
                         ? getDeviceBottomHeight(context) + 300
                         : getDeviceBottomHeight(context) + keyboardHeight),
-                    color: Color.fromARGB(255, 9, 128, 246),
+                    color: AppColors.darkPrimary,
                   )),
             ],
           ),
         ));
+  }
+
+  Widget _buildItem(
+      BuildContext context, int index, Animation<double> animation) {
+    return CardItem(
+      animation: animation,
+      index: index,
+      item: controller.list[index],
+      selected: true,
+      onTap: () {
+        // setState(() {
+        //   _selectedItem = _selectedItem == _list[index] ? null : _list[index];
+        // });
+      },
+    );
   }
 
   Widget _messageItem(int index) {
